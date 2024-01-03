@@ -67,12 +67,6 @@ Before you begin, make sure you have the following installed:
    git clone https://github.com/yousefsaad12/Pokemon-Review-API.git
    ```
 
-2. Install dependencies:
-
-   ```bash
-   cd Pokemon-Review-API
-   npm install
-   ```
 
 3. Set up the environment variables:
 
@@ -87,11 +81,6 @@ Before you begin, make sure you have the following installed:
 
 ### Usage
 
-1. Start the server:
-
-   ```bash
-   npm start
-   ```
 
 2. The API will be accessible at `http://localhost:3000`.
 
