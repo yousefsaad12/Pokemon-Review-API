@@ -52,13 +52,6 @@ Welcome to the Pokemon Review API, a powerful tool for retrieving and managing P
 
 ## Getting Started
 
-### Prerequisites
-
-Before you begin, make sure you have the following installed:
-
-- Node.js
-- npm (Node Package Manager)
-
 ### Installation
 
 1. Clone the repository:
