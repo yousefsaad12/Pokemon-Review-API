@@ -4,21 +4,21 @@ namespace PokemonApp.Interfaces
 {
     public interface IOwnerRepo
     {
-        ICollection<Owner> GetOwners();
+        Task<ICollection<Owner>> GetOwners();
 
-        Owner GetOwner(int ownerId);
+        Task<Owner?> GetOwner(int ownerId);
 
-        ICollection<Owner> GetOwnersOfPokemon(int pokeId);
+        Task<ICollection<Owner>> GetOwnersOfPokemon(int pokeId);
 
-        ICollection<Pokemon> GetPokemonsByOwner(int ownerId);
-        bool OwnerExist(int ownerId);
+        Task<ICollection<Pokemon>> GetPokemonsByOwner(int ownerId);
+        Task<bool> OwnerExist(int ownerId);
 
-        bool UpdateOwner(Owner owner);
+        Task<bool> UpdateOwner(Owner owner);
 
-        bool DeleteOwner(Owner owner);
+        Task<bool> DeleteOwner(Owner owner);
 
-        bool CreateOwner(Owner owner);
-        bool Save();
+        Task<bool> CreateOwner(Owner owner);
+        Task<bool> Save();
 
 
     }

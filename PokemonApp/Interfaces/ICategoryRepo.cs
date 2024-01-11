@@ -5,15 +5,15 @@ namespace PokemonApp.Interfaces
 {
     public interface ICategoryRepo
     {   
-        public IEnumerable<Category> GetCategories();
-        public Category GetCategory(int id);
-        public IEnumerable<Pokemon> GetPokemonsByCategory(int id);
-        bool CategoryExists(int id);
-        bool UpdateCategory(Category category);        
-        bool CreateCategory(Category category);
+        Task<IEnumerable<Category>> GetCategories();
+        Task<Category?> GetCategory(int id);
+        Task<IEnumerable<Pokemon> > GetPokemonsByCategory(int id);
+        Task<bool> CategoryExists(int id);
+        Task<bool> UpdateCategory(Category category);        
+        Task<bool> CreateCategory(Category category);
 
-        bool DeleteCategory(Category category);
-        bool Save();
+        Task<bool> DeleteCategory(Category category);
+        Task<bool> Save();
 
     }
 }

@@ -4,17 +4,17 @@ namespace PokemonApp.Interfaces
 {
     public interface ICountryRepo
     {
-        public Country GetCountry(int id);
-        public IEnumerable<Country> GetCountries();
+        Task<Country?> GetCountry(int id);
+        Task<IEnumerable<Country>> GetCountries();
 
-        bool CountryExists(int id);
-        public IEnumerable<Owner> GetCountryOwners(int id);
+        Task<bool> CountryExists(int id);
+        Task<IEnumerable<Owner>> GetCountryOwners(int id);
 
-        public Country GetCountryByOwner(int id);
+        Task<Country> GetCountryByOwner(int id);
 
-        bool DeleteCountry(Country country);
-        bool UpdateCountry(Country country);
-        bool CreateCountry(Country country);
-        bool Save();
+        Task<bool> DeleteCountry(Country country);
+        Task<bool> UpdateCountry(Country country);
+        Task<bool> CreateCountry(Country country);
+        Task<bool> Save();
     }
 }

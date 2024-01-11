@@ -4,19 +4,19 @@ namespace PokemonApp.Interfaces
 {
     public interface IPokemonRepo
     {
-        ICollection<Pokemon> GetPokemons();
-        Pokemon GetPokemon(int id);
+        Task<ICollection<Pokemon>> GetPokemons();
+        Task<Pokemon?> GetPokemon(int id);
 
-        int GetPokemonRating(int id);
+        Task<int> GetPokemonRating(int id);
 
-        bool PokemonExists(int id);
+        Task<bool> PokemonExists(int id);
 
-        bool CreatePokemon(int ownerId, int categoryId,Pokemon pokemon);
+        Task<bool>CreatePokemon(int ownerId, int categoryId,Pokemon pokemon);
 
-        bool UpdatePokemon(Pokemon pokemon);
+        Task<bool> UpdatePokemon(Pokemon pokemon);
 
-        bool DeletePokemon(Pokemon pokemon);
+        Task<bool> DeletePokemon(Pokemon pokemon);
 
-        bool Save();
+        Task<bool> Save();
     }
 }

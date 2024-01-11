@@ -1,4 +1,5 @@
-﻿using PokemonApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PokemonApp.Data;
 using PokemonApp.Interfaces;
 using PokemonApp.Models;
 
@@ -11,52 +12,53 @@ namespace PokemonApp.Repository
         {
             _context = dataContext;
         }
-        public bool CountryExists(int countId)
+        public async Task<bool> CountryExists(int countId)
         {
-            return _context.Countries.Any(c => c.Id == countId);
+            return await _context.Countries.AnyAsync(c => c.Id == countId);
         }
 
-        public bool CreateCountry(Country country)
+        public async Task<bool>  CreateCountry(Country country)
         {
-            _context.Add(country);
+            await _context.AddAsync(country);
 
-            return Save();
+            return await Save();
         }
 
-        public bool DeleteCountry(Country country)
+        public async Task<bool> DeleteCountry(Country country)
         {
             _context.Remove(country);
-            return Save();
+
+            return  await Save();
         }
 
-        public IEnumerable<Country> GetCountries()
+        public async Task<IEnumerable<Country>> GetCountries()
         {
-            return _context.Countries.ToList();
+            return await  _context.Countries.ToListAsync();
         }
 
-        public Country GetCountry(int countId)
+        public async Task<Country?> GetCountry(int countId)
         {
-            return _context.Countries.FirstOrDefault(c => c.Id == countId);
+            return await _context.Countries.FirstOrDefaultAsync(c => c.Id == countId);
         }
 
-        public Country GetCountryByOwner(int ownerId)
+        public async Task<Country> GetCountryByOwner(int ownerId)
         {
-            return _context.Owners.Where(o => o.Id == ownerId).Select(c => c.Country).FirstOrDefault();   
+            return await _context.Owners.Where(o => o.Id == ownerId).Select(c => c.Country).FirstOrDefaultAsync();   
         }
 
-        public IEnumerable<Owner> GetCountryOwners(int countId) // this part you do not finish by yourself
+        public async Task<IEnumerable<Owner>> GetCountryOwners(int countId) // this part you do not finish by yourself
         {
-            return _context.Owners.Where(c => c.Country.Id == countId).ToList();
+            return await _context.Owners.Where(c => c.Country.Id == countId).ToListAsync();
         }
 
-        public bool Save()
+        public async Task<bool>  Save()
         {   
-            int save = _context.SaveChanges();
+            int save = await _context.SaveChangesAsync();
 
             return save > 0 ? true : false;
         }
 
-        public bool UpdateCountry(Country country)
+        public Task<bool>  UpdateCountry(Country country)
         {
            _context.Update(country);
            return Save();
