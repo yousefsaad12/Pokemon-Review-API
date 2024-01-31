@@ -21,9 +21,9 @@ namespace PokemonApp.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(ICollection<Reviewer>))]
-        public IActionResult GetReviewers()
+        public async Task<IActionResult> GetReviewers()
         {
-            var reviewers = _mapper.Map<List<ReviewerDTO>>(_reviewerRepo.GetReviewers());
+            var reviewers = _mapper.Map<List<ReviewerDTO>>(await _reviewerRepo.GetReviewers());
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -34,9 +34,9 @@ namespace PokemonApp.Controllers
         [HttpGet("{reviewerId}")]
         [ProducesResponseType(200, Type = typeof(Reviewer))]
         [ProducesResponseType(400)]
-        public IActionResult GetReview(int reviewerId)
+        public async Task<IActionResult> GetReview(int reviewerId)
         {
-            if (!_reviewerRepo.ReviewerExist(reviewerId))
+            if (!await _reviewerRepo.ReviewerExist(reviewerId))
                 return NotFound();
 
             var reviewer = _mapper.Map<ReviewerDTO>(_reviewerRepo.GetReviewer(reviewerId));
@@ -50,9 +50,9 @@ namespace PokemonApp.Controllers
         [HttpGet("{reviewerId}/reviews")]
         [ProducesResponseType(200, Type = typeof(ICollection<Review>))]
         [ProducesResponseType(400)]
-        public IActionResult GetReviewsOfPokemon(int reviewerId)
+        public async Task<IActionResult> GetReviewsOfPokemon(int reviewerId)
         {
-            var reviews = _mapper.Map<List<ReviewDTO>>(_reviewerRepo.GetReviewsOfReviewer(reviewerId));
+            var reviews = _mapper.Map<List<ReviewDTO>>(await _reviewerRepo.GetReviewsOfReviewer(reviewerId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -66,15 +66,15 @@ namespace PokemonApp.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
 
-        public IActionResult CreatePokemon([FromBody] ReviewerDTO reviewerDTO)
+        public async Task<IActionResult> CreatePokemon([FromBody] ReviewerDTO reviewerDTO)
         {
 
             if (reviewerDTO == null)
                 return BadRequest(ModelState);
 
-            var reviewerExist = _reviewerRepo.GetReviewers()
-                                           .Where(p => p.LastName.Trim().ToUpper() == reviewerDTO.LastName.Trim().ToUpper())
-                                           .FirstOrDefault();
+            var reviewerList = await _reviewerRepo.GetReviewers();
+                                           
+            var reviewerExist = reviewerList .FirstOrDefault(p => p.LastName.Trim().ToUpper() == reviewerDTO.LastName.Trim().ToUpper());
 
             if (reviewerExist != null)
             {
@@ -87,7 +87,7 @@ namespace PokemonApp.Controllers
 
             var reviewerMap = _mapper.Map<Reviewer>(reviewerDTO);
 
-            if (!_reviewerRepo.CreateReviewer(reviewerMap))
+            if (!await _reviewerRepo.CreateReviewer(reviewerMap))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return BadRequest(ModelState);
@@ -102,7 +102,7 @@ namespace PokemonApp.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateCategory(int reviewerId, [FromBody] ReviewerDTO updatedReviewer)
+        public async Task<IActionResult> UpdateCategory(int reviewerId, [FromBody] ReviewerDTO updatedReviewer)
         {
             if (updatedReviewer == null)
                 return BadRequest(ModelState);
@@ -110,7 +110,7 @@ namespace PokemonApp.Controllers
             if (reviewerId != updatedReviewer.Id)
                 return BadRequest(ModelState);
 
-            if (!_reviewerRepo.ReviewerExist(reviewerId))
+            if (!await _reviewerRepo.ReviewerExist(reviewerId))
                 return BadRequest(ModelState);
 
             if (!ModelState.IsValid)
@@ -118,7 +118,7 @@ namespace PokemonApp.Controllers
 
             var reviewerMap = _mapper.Map<Reviewer>(updatedReviewer);
 
-            if (!_reviewerRepo.UpdateReviewer(reviewerMap))
+            if (!await _reviewerRepo.UpdateReviewer(reviewerMap))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -134,17 +134,17 @@ namespace PokemonApp.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteCountry(int reviewerId)
+        public async Task<IActionResult> DeleteCountry(int reviewerId)
         {
-            if (!_reviewerRepo.ReviewerExist(reviewerId))
+            if (!await _reviewerRepo.ReviewerExist(reviewerId))
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var review = _reviewerRepo.GetReviewer(reviewerId);
+            var review = await _reviewerRepo.GetReviewer(reviewerId);
 
-            if (!_reviewerRepo.DeleteReviewer(review))
+            if (!await _reviewerRepo.DeleteReviewer(review))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);

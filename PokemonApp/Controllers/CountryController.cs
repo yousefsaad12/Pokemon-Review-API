@@ -35,9 +35,9 @@ namespace PokemonApp.Controllers
         [HttpGet("{countryId}")]
         [ProducesResponseType(200, Type = typeof(Country))]
         [ProducesResponseType(400)]
-        public IActionResult GetCategory(int countryId)
+        public async Task<IActionResult> GetCategory(int countryId)
         {
-            if (!_countryRepo.CountryExists(countryId))
+            if (! await _countryRepo.CountryExists(countryId))
                 return NotFound();
 
             var country = _mapper.Map<CountryDTO>(_countryRepo.GetCountry(countryId));
@@ -51,9 +51,9 @@ namespace PokemonApp.Controllers
         [HttpGet("owners/{ownerId}")]
         [ProducesResponseType(200, Type = typeof(Country))]
         [ProducesResponseType(400)]
-        public IActionResult GetCountryByOwner(int ownerId)
+        public async Task<IActionResult> GetCountryByOwner(int ownerId)
         {
-            var country = _mapper.Map<CountryDTO>(_countryRepo.GetCountryByOwner(ownerId));
+            var country =  _mapper.Map<CountryDTO>(await _countryRepo.GetCountryByOwner(ownerId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -65,14 +65,14 @@ namespace PokemonApp.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateCategory([FromBody] CountryDTO country)
+        public async Task<IActionResult> CreateCategory([FromBody] CountryDTO country)
         {
             if (country == null)
                 return BadRequest(ModelState);
 
-            var categoryExist = _countryRepo.GetCountries()
-                                          .Where(c => c.Name.Trim().ToUpper() == country.Name.Trim().ToUpper())
-                                          .FirstOrDefault();
+            var categoryList = await _countryRepo.GetCountries();
+                                          
+            var categoryExist = categoryList.FirstOrDefault(c => c.Name.Trim().ToUpper() == country.Name.Trim().ToUpper());
 
             if (categoryExist != null)
             {
@@ -86,7 +86,7 @@ namespace PokemonApp.Controllers
 
             var countryMap = _mapper.Map<Country>(country);
 
-            if (!_countryRepo.CreateCountry(countryMap))
+            if (!await _countryRepo.CreateCountry(countryMap))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -102,7 +102,7 @@ namespace PokemonApp.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateCategory([FromQuery] int countryId, [FromBody] CountryDTO updatedCountry)
+        public async Task<IActionResult> UpdateCategory([FromQuery] int countryId, [FromBody] CountryDTO updatedCountry)
         {
             if (updatedCountry == null)
                 return BadRequest(ModelState);
@@ -110,7 +110,7 @@ namespace PokemonApp.Controllers
             if (countryId != updatedCountry.Id)
                 return BadRequest(ModelState);
 
-            if (!_countryRepo.CountryExists(countryId))
+            if (!await _countryRepo.CountryExists(countryId))
                 return BadRequest(ModelState);
 
             if (!ModelState.IsValid)
@@ -118,7 +118,7 @@ namespace PokemonApp.Controllers
 
             var countryMap = _mapper.Map<Country>(updatedCountry);
 
-            if (!_countryRepo.UpdateCountry(countryMap))
+            if (! await _countryRepo.UpdateCountry(countryMap))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -134,17 +134,17 @@ namespace PokemonApp.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteCountry(int countryId)
+        public async Task<IActionResult> DeleteCountry(int countryId)
         {
-            if (!_countryRepo.CountryExists(countryId))
+            if (!await  _countryRepo.CountryExists(countryId))
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var country = _countryRepo.GetCountry(countryId);
+            var country = await _countryRepo.GetCountry(countryId);
 
-            if (!_countryRepo.DeleteCountry(country))
+            if (!await _countryRepo.DeleteCountry(country))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);

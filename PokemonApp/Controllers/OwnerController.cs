@@ -23,9 +23,9 @@ namespace PokemonApp.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(ICollection<Owner>))]
-        public IActionResult GetOwners()
+        public async Task<IActionResult> GetOwners()
         {
-            var owners = _mapper.Map<ICollection<OwnerDTO>>(_ownerRepo.GetOwners());
+            var owners = _mapper.Map<ICollection<OwnerDTO>>( await _ownerRepo.GetOwners());
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -37,12 +37,12 @@ namespace PokemonApp.Controllers
         [HttpGet("{ownerId}")]
         [ProducesResponseType(200, Type = typeof(Owner))]
         [ProducesResponseType(400)]
-        public IActionResult GetOwner(int ownerId)
+        public async Task<IActionResult> GetOwner(int ownerId)
         {
-            if (!_ownerRepo.OwnerExist(ownerId))
+            if (await _ownerRepo.OwnerExist(ownerId))
                 return NotFound();
 
-            var owner = _mapper.Map<OwnerDTO>(_ownerRepo.GetOwner(ownerId));
+            var owner = _mapper.Map<OwnerDTO>(await _ownerRepo.GetOwner(ownerId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -53,12 +53,12 @@ namespace PokemonApp.Controllers
         [HttpGet("{ownerId}/pokemon")]
         [ProducesResponseType(200, Type = typeof(ICollection<Pokemon>))]
         [ProducesResponseType(400)]
-        public IActionResult GetPokemonsByOwner(int ownerId)
+        public async Task<IActionResult> GetPokemonsByOwner(int ownerId)
         {
-            if (!_ownerRepo.OwnerExist(ownerId))
+            if (!await _ownerRepo.OwnerExist(ownerId))
                 return NotFound();
 
-            var pokemons = _mapper.Map<ICollection<PokemonDTO>>(_ownerRepo.GetPokemonsByOwner(ownerId));
+            var pokemons = _mapper.Map<ICollection<PokemonDTO>>(await _ownerRepo.GetPokemonsByOwner(ownerId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -70,15 +70,14 @@ namespace PokemonApp.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateCategory([FromQuery] int countryId ,[FromBody] OwnerDTO owner)
+        public async Task<IActionResult> CreateCategory([FromQuery] int countryId ,[FromBody] OwnerDTO owner)
         {
             if (owner == null)
                 return BadRequest(ModelState);
 
-            var ownerExist = _ownerRepo.GetOwners()
-                                          .Where(c => c.LastName.Trim().ToUpper() == owner.LastName.Trim().ToUpper())
-                                          .FirstOrDefault();
-
+            var ownerList = await _ownerRepo.GetOwners();
+                                          
+             var ownerExist = ownerList.FirstOrDefault(c => c.LastName.Trim().ToUpper() == owner.LastName.Trim().ToUpper());
             if (ownerExist != null)
             {
                 ModelState.AddModelError("", "Country already exist");
@@ -91,9 +90,9 @@ namespace PokemonApp.Controllers
 
             var ownerMap = _mapper.Map<Owner>(owner);
 
-            ownerMap.Country = _countryRepo.GetCountry(countryId);
+            ownerMap.Country = await _countryRepo.GetCountry(countryId);
 
-            if (!_ownerRepo.CreateOwner(ownerMap))
+            if (!await _ownerRepo.CreateOwner(ownerMap))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -110,7 +109,7 @@ namespace PokemonApp.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateCategory([FromQuery] int ownerId, [FromBody] OwnerDTO updatedOwner)
+        public async Task<IActionResult> UpdateCategory([FromQuery] int ownerId, [FromBody] OwnerDTO updatedOwner)
         {
             if (updatedOwner == null)
                 return BadRequest(ModelState);
@@ -118,7 +117,7 @@ namespace PokemonApp.Controllers
             if (ownerId != updatedOwner.Id)
                 return BadRequest(ModelState);
 
-            if (!_ownerRepo.OwnerExist(ownerId))
+            if (!await _ownerRepo.OwnerExist(ownerId))
                 return BadRequest(ModelState);
 
             if (!ModelState.IsValid)
@@ -126,7 +125,7 @@ namespace PokemonApp.Controllers
 
             var ownerMap = _mapper.Map<Owner>(updatedOwner);
 
-            if (!_ownerRepo.UpdateOwner(ownerMap))
+            if (!await _ownerRepo.UpdateOwner(ownerMap))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -142,17 +141,17 @@ namespace PokemonApp.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteCountry(int ownerId)
+        public async Task<IActionResult> DeleteCountry(int ownerId)
         {
-            if (!_ownerRepo.OwnerExist(ownerId))
+            if (!await _ownerRepo.OwnerExist(ownerId))
                 return NotFound();
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var owner = _ownerRepo.GetOwner(ownerId);
+            var owner = await _ownerRepo.GetOwner(ownerId);
 
-            if (!_ownerRepo.DeleteOwner(owner))
+            if (!await _ownerRepo.DeleteOwner(owner))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
                 return StatusCode(500, ModelState);
